@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DoNotBotherMe</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="createBtnText">Создать условие</string>
+    <string name="CreatedTitle">Созданные условия</string>
+</resources>
