@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".view.ConditionFragment">
+
+    <TextView
+        android:id="@+id/chooseContactTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Контакт:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_margin="@dimen/general_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/contactsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_margin="@dimen/general_margin"
+        app:layout_constraintTop_toBottomOf="@id/chooseContactTitle"
+        />
+
+    <TextView
+        android:id="@+id/chooseTimeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Время:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_margin="@dimen/general_margin"
+        app:layout_constraintTop_toBottomOf="@id/contactsRecyclerView"
+        />
+
+    <LinearLayout
+        android:id="@+id/chooseTimeLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/general_margin"
+        app:layout_constraintTop_toBottomOf="@id/chooseTimeTitle">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C:" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="14sp"
+            tools:text="12:00" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:text="До:"
+            android:layout_marginStart="30dp" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="14sp"
+            tools:text="18:00"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/chooseDayTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Дни:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_margin="@dimen/general_margin"
+        app:layout_constraintTop_toBottomOf="@id/chooseTimeLinearLayout"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/daysChoiceConstraint"
+        android:layout_width="match_parent"
+        android:layout_margin="@dimen/general_margin"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toBottomOf="@id/chooseDayTitle">
+
+        <TextView
+            android:id="@+id/textMonday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="28sp"
+            android:text="Пн"
+            />
+
+        <CheckBox
+            android:id="@+id/checkMonday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textMonday"
+            />
+        <TextView
+            android:id="@+id/textTuesday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/checkMonday"
+            android:textSize="28sp"
+            android:text="Вт"
+            />
+
+        <CheckBox
+            android:id="@+id/checkTuesday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textTuesday"
+            />
+
+        <TextView
+            android:id="@+id/textWednesday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/checkTuesday"
+            android:textSize="28sp"
+            android:text="Ср"
+            />
+
+        <CheckBox
+            android:id="@+id/checkWednesday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textWednesday"
+            />
+
+        <TextView
+            android:id="@+id/textThursday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/checkWednesday"
+            android:textSize="28sp"
+            android:text="Чт"
+            />
+
+        <CheckBox
+            android:id="@+id/checkThursday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textThursday"
+            />
+
+        <TextView
+            android:id="@+id/textFriday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/checkMonday"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="28sp"
+            android:text="Пт"
+            />
+
+        <CheckBox
+            android:id="@+id/checkFriday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/checkMonday"
+            app:layout_constraintStart_toStartOf="@id/checkMonday"
+            />
+
+        <TextView
+            android:id="@+id/textSaturday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/checkTuesday"
+            app:layout_constraintStart_toStartOf="@id/textTuesday"
+            android:textSize="28sp"
+            android:text="Сб"
+            />
+
+        <CheckBox
+            android:id="@+id/checkSaturday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/checkTuesday"
+            app:layout_constraintStart_toStartOf="@id/checkTuesday"
+            />
+        <TextView
+            android:id="@+id/textSunday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/checkWednesday"
+            app:layout_constraintStart_toStartOf="@id/textWednesday"
+            android:textSize="28sp"
+            android:text="Вс"
+            />
+
+        <CheckBox
+            android:id="@+id/checkSunday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/checkWednesday"
+            app:layout_constraintStart_toStartOf="@id/checkWednesday"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
