@@ -27,11 +27,12 @@
         android:textSize="24sp"
         android:layout_margin="@dimen/general_margin"
         android:text="@string/CreatedTitle"
-        app:layout_constraintBottom_toTopOf="@id/recyclerView"
+        app:layout_constraintBottom_toTopOf="@id/createdConditionsLayout"
         />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <LinearLayout
+        android:id="@+id/createdConditionsLayout"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:layout_margin="@dimen/general_margin"
