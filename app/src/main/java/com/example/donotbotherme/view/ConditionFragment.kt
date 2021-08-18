@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat
 import com.example.donotbotherme.R
 import com.example.donotbotherme.databinding.FragmentConditionBinding
 import com.example.donotbotherme.model.DisturbCondition
-const val CONDITIONS_ARRAYLIST = "CONDITIONS_ARRAYLIST"
+const val NEW_CONDITION = "NEW_CONDITION"
 
 class ConditionFragment : Fragment() {
 
@@ -44,7 +44,7 @@ class ConditionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val conditionsList = ArrayList<DisturbCondition>()
+//        val conditionsList = ArrayList<DisturbCondition>()
 
         //запрос разрешений
         checkPermission(android.Manifest.permission.READ_CONTACTS, TITLE_CONTACTS, MSG_CONTACTS)
@@ -79,16 +79,23 @@ class ConditionFragment : Fragment() {
                 isSunday
             )
 
-            conditionsList.add(condition)
+//            conditionsList.add(condition)
 
-            val intent = Intent(requireActivity(), MainFragment::class.java)
-            intent.putExtra("conditions", conditionsList)
+//            val intent = Intent(requireActivity(), MainFragment::class.java)
+//            intent.putExtra("conditions", conditionsList)
+//
+//            val retrievedData = intent.getParcelableArrayListExtra<Parcelable>("conditions")
+//
+//            println("$retrievedData BEBA")
+//
+//            parentFragmentManager.beginTransaction().replace(R.id.container, MainFragment.newInstance()).commit()
 
-            val retrievedData = intent.getParcelableArrayListExtra<Parcelable>("conditions")
+            val bundle = Bundle()
+            bundle.putParcelable(NEW_CONDITION, condition)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.container, MainFragment.newInstance(bundle))
+                .commit()
 
-            println("$retrievedData BEBA")
-
-            parentFragmentManager.beginTransaction().replace(R.id.container, MainFragment.newInstance()).commit()
         }
     }
 

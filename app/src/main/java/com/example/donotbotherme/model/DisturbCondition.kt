@@ -3,7 +3,7 @@ package com.example.donotbotherme.model
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-
+@Parcelize
 data class DisturbCondition(
     val contactName : String? = "default",
     val contactNumber : String? = "default",
@@ -16,4 +16,4 @@ data class DisturbCondition(
     val isFridayBlocked : Boolean = false,
     val isSaturdayBlocked : Boolean = false,
     val isSundayBlocked : Boolean = false,
-)
+) : Parcelable
