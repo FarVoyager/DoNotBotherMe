@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatTextView
 import com.example.donotbotherme.R
+import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.databinding.FragmentMainBinding
 import com.example.donotbotherme.model.DisturbCondition
 
@@ -25,7 +26,6 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var conditionsList: ArrayList<DisturbCondition>
-    private val listBundle: Bundle = Bundle()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,13 +39,15 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val tinyDB = TinyDB(requireContext())
+
         if (this.arguments?.getParcelable<DisturbCondition>(NEW_CONDITION) != null) {
             println("Bundle NOT NULL BEB")
-            conditionsList = listBundle.getParcelableArrayList<DisturbCondition>(CONDITION_LIST)!!
+            conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
         } else {
-            if (listBundle.getParcelableArrayList<DisturbCondition>(CONDITION_LIST) != null) {
+            if (tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) != null) {
                 println("Bundle NOT NULL 2 BEB")
-                conditionsList = listBundle.getParcelableArrayList<DisturbCondition>(CONDITION_LIST) as ArrayList<DisturbCondition>
+                conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
             } else {
                 println("Bundle NULL BEB")
                 conditionsList = ArrayList()
@@ -53,13 +55,18 @@ class MainFragment : Fragment() {
 
         }
 
-        val saveListPrefs = requireContext().getSharedPreferences(CONDITION_LIST, 0)
+//        conditionsList = ArrayList()
+
+        val objectList: ArrayList<Any> = ArrayList()
+        for (i in 0 until conditionsList.size) {
+            objectList.add(conditionsList[i])
+        }
+        tinyDB.putListObject(CONDITION_LIST, objectList)
+
+        val retrievedList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java)
+        println("$retrievedList BEBUS")
 
 
-
-        listBundle.putParcelableArrayList(CONDITION_LIST, conditionsList)
-        println(listBundle.getParcelableArrayList<DisturbCondition>(CONDITION_LIST).toString() + " BEBUS")
-        println("ZAPIHAL BEB")
 
         val conditionBundle = this.arguments
         if (conditionBundle != null) {
@@ -67,20 +74,28 @@ class MainFragment : Fragment() {
             val retrievedCondition = conditionBundle.getParcelable<DisturbCondition>(NEW_CONDITION)
             if (retrievedCondition != null) {
                 conditionsList.add(retrievedCondition)
+
+                for (i in 0 until conditionsList.size) {
+                    objectList.add(conditionsList[i])
+                }
+                tinyDB.putListObject(CONDITION_LIST, objectList)
+
                 println(conditionsList.size.toString() + " size BEB")
             }
-            listBundle.putParcelableArrayList(CONDITION_LIST, conditionsList)
-            println("ZAPIHAL 2 BEB")
+        }
+
 
 
             if (!conditionsList.isNullOrEmpty()) {
+                println(conditionsList.size.toString() + " size BEB")
+
                 for (i in 0 until conditionsList.size) {
                     binding.createdConditionsLayout.addView(AppCompatTextView(requireContext()).apply {
                         val textToView = conditionsList[i].contactName + " " + conditionsList[i].contactNumber
                         text = textToView
                     })
                 }
-            }
+
 
         } else {
             println("Bundle is null BEB")
