@@ -53,12 +53,13 @@ class MainFragment : Fragment() {
 
         }
 
+        val saveListPrefs = requireContext().getSharedPreferences(CONDITION_LIST, 0)
+
+
 
         listBundle.putParcelableArrayList(CONDITION_LIST, conditionsList)
         println(listBundle.getParcelableArrayList<DisturbCondition>(CONDITION_LIST).toString() + " BEBUS")
-//        arguments?.putParcelableArrayList(CONDITION_LIST, conditionsList)
         println("ZAPIHAL BEB")
-//        println(arguments?.getParcelableArrayList<DisturbCondition>(CONDITION_LIST).toString() + " BEBUS")
 
         val conditionBundle = this.arguments
         if (conditionBundle != null) {
@@ -95,14 +96,6 @@ class MainFragment : Fragment() {
 
     }
 
-//    override fun onPause() {
-//        super.onPause()
-//
-//        val pref = requireActivity().getSharedPreferences("PREF", 0)
-//        val editor: SharedPreferences.Editor = pref.edit()
-//        editor.putString("TASKS", )
-//    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         println("onSaveInstanceState BEB")
@@ -121,18 +114,18 @@ class MainFragment : Fragment() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        println("onPause BEB")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        println("onStop BEB")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        println("onResume BEB")
-    }
+//    override fun onPause() {
+//        super.onPause()
+//        println("onPause BEB")
+//    }
+//
+//    override fun onStop() {
+//        super.onStop()
+//        println("onStop BEB")
+//    }
+//
+//    override fun onResume() {
+//        super.onResume()
+//        println("onResume BEB")
+//    }
 }
