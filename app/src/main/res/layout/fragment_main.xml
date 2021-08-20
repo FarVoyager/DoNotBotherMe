@@ -18,6 +18,18 @@
         android:layout_marginRight="@dimen/general_margin"
         android:backgroundTint="#000000"
         />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/clearAllBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createBtn"
+        android:text="@string/clearAllBtnText"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="@dimen/general_margin"
+        android:layout_marginRight="@dimen/general_margin"
+        android:backgroundTint="#F44336"
+        />
 
     <TextView
         android:id="@+id/createdTitle"
@@ -27,16 +39,27 @@
         android:textSize="24sp"
         android:layout_margin="@dimen/general_margin"
         android:text="@string/CreatedTitle"
-        app:layout_constraintBottom_toTopOf="@id/createdConditionsLayout"
+        app:layout_constraintBottom_toTopOf="@id/createdConditionsScrollView"
         />
 
-    <LinearLayout
-        android:id="@+id/createdConditionsLayout"
-        android:orientation="vertical"
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/createdConditionsScrollView"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:layout_margin="@dimen/general_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:id="@+id/createdConditionsLayout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/general_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+    </androidx.core.widget.NestedScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

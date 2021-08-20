@@ -19,8 +19,6 @@ const val CONDITION_LIST = "CONDITION_LIST"
 
 
 class MainFragment : Fragment() {
-    //разобраться с Parcelable и Intent, данные сохраняются, но не вытаскиваются
-
 
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
@@ -41,21 +39,19 @@ class MainFragment : Fragment() {
 
         val tinyDB = TinyDB(requireContext())
 
-        if (this.arguments?.getParcelable<DisturbCondition>(NEW_CONDITION) != null) {
+        //логика заполнения списка условий
+        if (this.arguments?.getParcelable<DisturbCondition>(NEW_CONDITION) != null) { //если было создано новое условие
             println("Bundle NOT NULL BEB")
             conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
         } else {
-            if (tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) != null) {
+            if (tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) != null) { // если список условий уже не пуст
                 println("Bundle NOT NULL 2 BEB")
                 conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
-            } else {
+            } else { //если список условий пуст
                 println("Bundle NULL BEB")
                 conditionsList = ArrayList()
             }
-
         }
-
-//        conditionsList = ArrayList()
 
         val objectList: ArrayList<Any> = ArrayList()
         for (i in 0 until conditionsList.size) {
@@ -67,24 +63,17 @@ class MainFragment : Fragment() {
         println("$retrievedList BEBUS")
 
 
-
         val conditionBundle = this.arguments
         if (conditionBundle != null) {
             println("Bundle is received BEB")
             val retrievedCondition = conditionBundle.getParcelable<DisturbCondition>(NEW_CONDITION)
             if (retrievedCondition != null) {
                 conditionsList.add(retrievedCondition)
-
-                for (i in 0 until conditionsList.size) {
-                    objectList.add(conditionsList[i])
-                }
+                    objectList.add(retrievedCondition)
                 tinyDB.putListObject(CONDITION_LIST, objectList)
-
                 println(conditionsList.size.toString() + " size BEB")
             }
         }
-
-
 
             if (!conditionsList.isNullOrEmpty()) {
                 println(conditionsList.size.toString() + " size BEB")
@@ -95,8 +84,6 @@ class MainFragment : Fragment() {
                         text = textToView
                     })
                 }
-
-
         } else {
             println("Bundle is null BEB")
         }
@@ -107,6 +94,13 @@ class MainFragment : Fragment() {
                 .addToBackStack(null)
                 .replace(R.id.container, ConditionFragment.newInstance())
                 .commit()
+        }
+
+        binding.clearAllBtn.setOnClickListener {
+            conditionsList.clear()
+            objectList.clear()
+            tinyDB.putListObject(CONDITION_LIST, objectList)
+            binding.createdConditionsLayout.removeAllViews()
         }
 
     }
