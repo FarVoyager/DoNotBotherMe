@@ -44,8 +44,6 @@ class ConditionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        val conditionsList = ArrayList<DisturbCondition>()
-
         //запрос разрешений
         checkPermission(android.Manifest.permission.READ_CONTACTS, TITLE_CONTACTS, MSG_CONTACTS)
         checkPermission(android.Manifest.permission.MODIFY_AUDIO_SETTINGS, TITLE_AUDIO, MSG_AUDIO)
@@ -79,23 +77,11 @@ class ConditionFragment : Fragment() {
                 isSunday
             )
 
-//            conditionsList.add(condition)
-
-//            val intent = Intent(requireActivity(), MainFragment::class.java)
-//            intent.putExtra("conditions", conditionsList)
-//
-//            val retrievedData = intent.getParcelableArrayListExtra<Parcelable>("conditions")
-//
-//            println("$retrievedData BEBA")
-//
-//            parentFragmentManager.beginTransaction().replace(R.id.container, MainFragment.newInstance()).commit()
-
             val bundle = Bundle()
             bundle.putParcelable(NEW_CONDITION, condition)
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.container, MainFragment.newInstance(bundle))
                 .commit()
-
         }
     }
 
