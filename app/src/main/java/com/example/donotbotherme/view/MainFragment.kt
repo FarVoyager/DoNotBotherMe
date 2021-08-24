@@ -23,7 +23,7 @@ class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var conditionsList: ArrayList<DisturbCondition>
+    lateinit var conditionsList: ArrayList<DisturbCondition>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

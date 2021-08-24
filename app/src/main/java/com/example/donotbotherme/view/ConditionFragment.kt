@@ -48,6 +48,9 @@ class ConditionFragment : Fragment() {
         checkPermission(android.Manifest.permission.READ_CONTACTS, TITLE_CONTACTS, MSG_CONTACTS)
         checkPermission(android.Manifest.permission.MODIFY_AUDIO_SETTINGS, TITLE_AUDIO, MSG_AUDIO)
         checkPermission(android.Manifest.permission.ACCESS_NOTIFICATION_POLICY, TITLE_NOTIFICATION, MSG_NOTIFICATION)
+        checkPermission(android.Manifest.permission.READ_PHONE_STATE, TITLE_PHONE_STATE, MSG_PHONE_STATE)
+        checkPermission(android.Manifest.permission.READ_CALL_LOG, TITLE_READ_LOG, MSG_READ_LOG)
+
 
         //действие при нажатии на кнопку "Готово"
         binding.buttonDone.setOnClickListener {
@@ -206,6 +209,10 @@ class ConditionFragment : Fragment() {
         const val MSG_AUDIO = "Для работы приложения необходим доступ к настройкам звука"
         const val TITLE_NOTIFICATION = "Доступ к настройкам режимов уведомлений"
         const val MSG_NOTIFICATION = "Для работы приложения необходим доступ к настройкам режимов уведомлений"
+        const val TITLE_PHONE_STATE = "Доступ к обработке входящего вызова"
+        const val MSG_PHONE_STATE = "Для работы приложения необходим доступ к обработке входящих вызовов"
+        const val TITLE_READ_LOG = "Доступ к настройкам чтения данных входящего вызова"
+        const val MSG_READ_LOG = "Для работы приложения необходим доступ к настройкам чтения данных входящих вызовов"
 
         @JvmStatic
         fun newInstance() = ConditionFragment()
