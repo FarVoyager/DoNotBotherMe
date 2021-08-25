@@ -17,6 +17,7 @@ import com.example.donotbotherme.model.DisturbCondition
 const val REQUEST_CODE = 42
 const val CONDITION_LIST = "CONDITION_LIST"
 
+    //вылетает при попытке изменить состояние режима "Не беспокоить"
 
 class MainFragment : Fragment() {
 
@@ -41,14 +42,11 @@ class MainFragment : Fragment() {
 
         //логика заполнения списка условий
         if (this.arguments?.getParcelable<DisturbCondition>(NEW_CONDITION) != null) { //если было создано новое условие
-            println("Bundle NOT NULL BEB")
             conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
         } else {
             if (tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) != null) { // если список условий уже не пуст
-                println("Bundle NOT NULL 2 BEB")
                 conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
             } else { //если список условий пуст
-                println("Bundle NULL BEB")
                 conditionsList = ArrayList()
             }
         }
@@ -62,21 +60,17 @@ class MainFragment : Fragment() {
         val retrievedList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java)
         println("$retrievedList BEBUS")
 
-
         val conditionBundle = this.arguments
         if (conditionBundle != null) {
-            println("Bundle is received BEB")
             val retrievedCondition = conditionBundle.getParcelable<DisturbCondition>(NEW_CONDITION)
             if (retrievedCondition != null) {
                 conditionsList.add(retrievedCondition)
                     objectList.add(retrievedCondition)
                 tinyDB.putListObject(CONDITION_LIST, objectList)
-                println(conditionsList.size.toString() + " size BEB")
             }
         }
 
             if (!conditionsList.isNullOrEmpty()) {
-                println(conditionsList.size.toString() + " size BEB")
 
                 for (i in 0 until conditionsList.size) {
                     binding.createdConditionsLayout.addView(AppCompatTextView(requireContext()).apply {
@@ -84,8 +78,6 @@ class MainFragment : Fragment() {
                         text = textToView
                     })
                 }
-        } else {
-            println("Bundle is null BEB")
         }
 
         binding.createBtn.setOnClickListener {
@@ -102,13 +94,10 @@ class MainFragment : Fragment() {
             tinyDB.putListObject(CONDITION_LIST, objectList)
             binding.createdConditionsLayout.removeAllViews()
         }
-
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        println("onSaveInstanceState BEB")
-
         outState.putParcelableArrayList(CONDITION_LIST, conditionsList)
     }
 
@@ -122,19 +111,4 @@ class MainFragment : Fragment() {
             return fragment
         }
     }
-
-//    override fun onPause() {
-//        super.onPause()
-//        println("onPause BEB")
-//    }
-//
-//    override fun onStop() {
-//        super.onStop()
-//        println("onStop BEB")
-//    }
-//
-//    override fun onResume() {
-//        super.onResume()
-//        println("onResume BEB")
-//    }
 }
