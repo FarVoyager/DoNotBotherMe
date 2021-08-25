@@ -16,7 +16,9 @@ class CallListener : BroadcastReceiver() {
 
     var phoneNumber = "empty"
     lateinit var conditionsList: ArrayList<DisturbCondition>
-    var isProgramSetSilent = false
+    private var isProgramSetSilent = false
+    var mustRemainSilent = false
+
 
     override fun onReceive(context: Context?, intent: Intent?) {
         println("Call BEB")
@@ -37,9 +39,7 @@ class CallListener : BroadcastReceiver() {
         ) as ArrayList<DisturbCondition>
         for (i in 0 until conditionsList.size) {
             val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
-            println(conditionsList[i].contactNumber.toString() + " BEB")
             if (formattedNumber.equals(phoneNumber)) {
-                println("Found BEB")
                 changePhoneState(context)
 
             }
@@ -62,15 +62,29 @@ class CallListener : BroadcastReceiver() {
         val audioManager: AudioManager =
             context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val currentPhoneState = audioManager.ringerMode
-        if (!isProgramSetSilent) {
+        println("$currentPhoneState currentPhoneState BEB")
 
-            //здесь приложение вылетает
-            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-            isProgramSetSilent = true
+            //действия при начале звонка
+        if (!isProgramSetSilent) {
+            if (currentPhoneState != AudioManager.RINGER_MODE_SILENT) {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                isProgramSetSilent = true
+            } else {
+                mustRemainSilent = true
+                isProgramSetSilent = true
+            }
+            //действия при окончании звонка
         } else {
-            audioManager.ringerMode = currentPhoneState
-            isProgramSetSilent = false
+            if (!mustRemainSilent) {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                isProgramSetSilent = false
+                mustRemainSilent = false
+            } else {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                isProgramSetSilent = false
+                mustRemainSilent = false
+            }
         }
     }
 
