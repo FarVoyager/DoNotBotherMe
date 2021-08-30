@@ -69,7 +69,6 @@ class MainFragment : Fragment() {
                 tinyDB.putListObject(CONDITION_LIST, objectList)
             }
         }
-
             if (!conditionsList.isNullOrEmpty()) {
 
                 for (i in 0 until conditionsList.size) {

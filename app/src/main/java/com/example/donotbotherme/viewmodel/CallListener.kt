@@ -21,8 +21,6 @@ class CallListener : BroadcastReceiver() {
 
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        println("Call BEB")
-
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
             println("$phone BEB")
@@ -39,9 +37,8 @@ class CallListener : BroadcastReceiver() {
         ) as ArrayList<DisturbCondition>
         for (i in 0 until conditionsList.size) {
             val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
-            if (formattedNumber.equals(phoneNumber)) {
+            if (formattedNumber == phoneNumber) {
                 changePhoneState(context)
-
             }
         }
     }
@@ -58,13 +55,10 @@ class CallListener : BroadcastReceiver() {
     }
 
     private fun changePhoneState(context: Context?) {
-
         val audioManager: AudioManager =
             context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val currentPhoneState = audioManager.ringerMode
-        println("$currentPhoneState currentPhoneState BEB")
-
-            //действия при начале звонка
+        //действия при начале звонка
         if (!isProgramSetSilent) {
             if (currentPhoneState != AudioManager.RINGER_MODE_SILENT) {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
@@ -87,5 +81,4 @@ class CallListener : BroadcastReceiver() {
             }
         }
     }
-
 }
