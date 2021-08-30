@@ -18,20 +18,16 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         registerReceiver(receiver, IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED))
 
-
         val notificationManager: NotificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        println(notificationManager.isNotificationPolicyAccessGranted.toString() + " BEBO")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !notificationManager.isNotificationPolicyAccessGranted) {
             val intent = Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
             startActivity(intent)
-            println(notificationManager.isNotificationPolicyAccessGranted.toString() + " BEBO")
         }
-
-
 
         setContentView(R.layout.activity_main)
         supportFragmentManager.beginTransaction().replace(R.id.container, MainFragment.newInstance()).commit()
@@ -39,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         unregisterReceiver(receiver)
+        println("onDestroy BEB")
         super.onDestroy()
     }
 }

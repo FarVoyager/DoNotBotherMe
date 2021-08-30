@@ -21,6 +21,7 @@ class CallListener : BroadcastReceiver() {
 
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        println("onReceive BEB")
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
             println("$phone BEB")
