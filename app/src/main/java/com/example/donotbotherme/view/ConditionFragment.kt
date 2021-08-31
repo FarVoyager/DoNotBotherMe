@@ -14,12 +14,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import com.example.donotbotherme.R
 import com.example.donotbotherme.databinding.FragmentConditionBinding
 import com.example.donotbotherme.model.DisturbCondition
+
 const val NEW_CONDITION = "NEW_CONDITION"
 
 class ConditionFragment : Fragment() {
@@ -29,7 +31,6 @@ class ConditionFragment : Fragment() {
 
     private var chosenContactNumber: String? = null
     private var chosenContactName: String? = null
-
 
 
     override fun onCreateView(
@@ -47,45 +48,76 @@ class ConditionFragment : Fragment() {
         //запрос разрешений
         checkPermission(android.Manifest.permission.READ_CONTACTS, TITLE_CONTACTS, MSG_CONTACTS)
         checkPermission(android.Manifest.permission.MODIFY_AUDIO_SETTINGS, TITLE_AUDIO, MSG_AUDIO)
-        checkPermission(android.Manifest.permission.ACCESS_NOTIFICATION_POLICY, TITLE_NOTIFICATION, MSG_NOTIFICATION)
-        checkPermission(android.Manifest.permission.READ_PHONE_STATE, TITLE_PHONE_STATE, MSG_PHONE_STATE)
+        checkPermission(
+            android.Manifest.permission.ACCESS_NOTIFICATION_POLICY,
+            TITLE_NOTIFICATION,
+            MSG_NOTIFICATION
+        )
+        checkPermission(
+            android.Manifest.permission.READ_PHONE_STATE,
+            TITLE_PHONE_STATE,
+            MSG_PHONE_STATE
+        )
         checkPermission(android.Manifest.permission.READ_CALL_LOG, TITLE_READ_LOG, MSG_READ_LOG)
 
 
         //действие при нажатии на кнопку "Готово"
         binding.buttonDone.setOnClickListener {
-            val contactName = chosenContactName
-            val contactNumber = chosenContactNumber
-            val startTime = binding.startTimeEditText.text.toString()
-            val endTime = binding.endTimeEditText.text.toString()
-            val isMonday = binding.checkMonday.isChecked
-            val isTuesday = binding.checkTuesday.isChecked
-            val isWednesday = binding.checkWednesday.isChecked
-            val isThursday = binding.checkThursday.isChecked
-            val isFriday = binding.checkFriday.isChecked
-            val isSaturday = binding.checkSaturday.isChecked
-            val isSunday = binding.checkSunday.isChecked
 
-            val condition = DisturbCondition(
-                contactName,
-                contactNumber,
-                startTime,
-                endTime,
-                isMonday,
-                isTuesday,
-                isWednesday,
-                isThursday,
-                isFriday,
-                isSaturday,
-                isSunday
-            )
+            //если поля не пусты
+            if (!binding.startTimeHourEditText.text.isNullOrEmpty() &&
+                !binding.endTimeHourEditText.text.isNullOrEmpty() &&
+                !binding.startTimeMinuteEditText.text.isNullOrEmpty() &&
+                !binding.endTimeMinuteEditText.text.isNullOrEmpty()
+            ) {
+                //если числа больше допустимых
+                if (parseIntValue(binding.startTimeHourEditText.text.toString()) > 24 ||
+                    parseIntValue(binding.endTimeHourEditText.text.toString()) > 24 ||
+                    parseIntValue(binding.startTimeMinuteEditText.text.toString()) > 60 ||
+                    parseIntValue(binding.endTimeMinuteEditText.text.toString()) > 60
+                ) {
+                    Toast.makeText(requireContext(), "Неверный формат времени", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    val contactName = chosenContactName
+                    val contactNumber = chosenContactNumber
+                    val startTime = binding.startTimeHourEditText.text.toString() + "." + binding.startTimeMinuteEditText.text.toString()
+                    val endTime = binding.endTimeHourEditText.text.toString() + "." + binding.endTimeMinuteEditText.text.toString()
+                    val isMonday = binding.checkMonday.isChecked
+                    val isTuesday = binding.checkTuesday.isChecked
+                    val isWednesday = binding.checkWednesday.isChecked
+                    val isThursday = binding.checkThursday.isChecked
+                    val isFriday = binding.checkFriday.isChecked
+                    val isSaturday = binding.checkSaturday.isChecked
+                    val isSunday = binding.checkSunday.isChecked
 
-            val bundle = Bundle()
-            bundle.putParcelable(NEW_CONDITION, condition)
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.container, MainFragment.newInstance(bundle))
-                .commit()
+                    val condition = DisturbCondition(
+                        contactName,
+                        contactNumber,
+                        startTime,
+                        endTime,
+                        isMonday,
+                        isTuesday,
+                        isWednesday,
+                        isThursday,
+                        isFriday,
+                        isSaturday,
+                        isSunday
+                    )
+
+                    val bundle = Bundle()
+                    bundle.putParcelable(NEW_CONDITION, condition)
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.container, MainFragment.newInstance(bundle))
+                        .commit()
+                }
+            }
         }
+
+    }
+
+    private fun parseIntValue(string: String): Int {
+        return string.toInt()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -208,11 +240,14 @@ class ConditionFragment : Fragment() {
         const val TITLE_AUDIO = "Доступ к настройкам звука"
         const val MSG_AUDIO = "Для работы приложения необходим доступ к настройкам звука"
         const val TITLE_NOTIFICATION = "Доступ к настройкам режимов уведомлений"
-        const val MSG_NOTIFICATION = "Для работы приложения необходим доступ к настройкам режимов уведомлений"
+        const val MSG_NOTIFICATION =
+            "Для работы приложения необходим доступ к настройкам режимов уведомлений"
         const val TITLE_PHONE_STATE = "Доступ к обработке входящего вызова"
-        const val MSG_PHONE_STATE = "Для работы приложения необходим доступ к обработке входящих вызовов"
+        const val MSG_PHONE_STATE =
+            "Для работы приложения необходим доступ к обработке входящих вызовов"
         const val TITLE_READ_LOG = "Доступ к настройкам чтения данных входящего вызова"
-        const val MSG_READ_LOG = "Для работы приложения необходим доступ к настройкам чтения данных входящих вызовов"
+        const val MSG_READ_LOG =
+            "Для работы приложения необходим доступ к настройкам чтения данных входящих вызовов"
 
         @JvmStatic
         fun newInstance() = ConditionFragment()

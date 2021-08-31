@@ -24,17 +24,9 @@ class BackgroundWorkService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        //do smth
         initChannel(this)
-        startForeground()
-        return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onDestroy() {
-        println("onDestroyService BEB")
-
-        initChannel(this)
-        startForeground()
+        startServiceForeground()
+        return START_STICKY
     }
 
     private fun initChannel(context: Context) {
@@ -50,7 +42,7 @@ class BackgroundWorkService : Service() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun startForeground() {
+    private fun startServiceForeground() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 

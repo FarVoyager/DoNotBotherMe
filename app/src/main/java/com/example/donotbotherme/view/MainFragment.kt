@@ -17,8 +17,6 @@ import com.example.donotbotherme.model.DisturbCondition
 const val REQUEST_CODE = 42
 const val CONDITION_LIST = "CONDITION_LIST"
 
-    //вылетает при попытке изменить состояние режима "Не беспокоить"
-
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null

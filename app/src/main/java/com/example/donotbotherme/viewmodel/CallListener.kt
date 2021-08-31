@@ -11,13 +11,19 @@ import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.model.DisturbCondition
 import com.example.donotbotherme.view.CONDITION_LIST
 import java.lang.StringBuilder
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
+//необходимо корректно сравнить текущую дату (время) с датами из условия
 class CallListener : BroadcastReceiver() {
 
     var phoneNumber = "empty"
     lateinit var conditionsList: ArrayList<DisturbCondition>
     private var isProgramSetSilent = false
     var mustRemainSilent = false
+    var isNumberFound = false
+    var currentFoundContact : DisturbCondition? = null
 
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -26,20 +32,66 @@ class CallListener : BroadcastReceiver() {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
             println("$phone BEB")
             phoneNumber = phone.toString()
-            compareNumber(context)
+            compareConditions(context)
         }
     }
 
-    private fun compareNumber(context: Context?) {
+    private fun compareConditions(context: Context?) {
+
         val tinyDB = TinyDB(context)
         conditionsList = tinyDB.getListObject(
             CONDITION_LIST,
             DisturbCondition::class.java
         ) as ArrayList<DisturbCondition>
+
+        compareNumber(context)
+        compareTime(context)
+//        compareDay()
+    }
+
+    private fun compareTime(context: Context?) {
+        if (isNumberFound) {
+            isNumberFound = false
+            val timeStart = currentFoundContact?.timeStart
+            val timeEnd = currentFoundContact?.timeEnd
+
+            val currentDate = Calendar.getInstance().time.toString()
+            val timeData = currentDate.split(" ")
+            val timeDataSplit = timeData[3].split(":")
+            val currentTime = timeDataSplit[0] + ":" + timeDataSplit[1]
+            println("$currentTime BEBOO")
+
+//            compareDates(timeStart, timeEnd)
+
+        }
+    }
+
+
+    private fun compareDates(str_date1:String?, str_date2:String?):Int {
+        lateinit var date1:Date
+        lateinit var date2:Date
+
+        if (str_date1 != null && str_date2 != null) {
+            if (str_date1.isNotEmpty() && str_date2.isNotEmpty()) {
+                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                date1 = formatter.parse(str_date1)
+                date2 = formatter.parse(str_date2)
+                println("$date1 BEB")
+                println("$date2 BEB")
+
+            }
+        }
+        return date1.compareTo(date2)
+    }
+
+
+    private fun compareNumber(context: Context?){
         for (i in 0 until conditionsList.size) {
             val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
             if (formattedNumber == phoneNumber) {
                 changePhoneState(context)
+                isNumberFound = true
+                currentFoundContact = conditionsList[i]
             }
         }
     }
