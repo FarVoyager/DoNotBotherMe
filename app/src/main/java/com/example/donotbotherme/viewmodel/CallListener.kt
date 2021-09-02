@@ -3,17 +3,18 @@ package com.example.donotbotherme.viewmodel
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.os.Build
 import android.telephony.TelephonyManager
-import androidx.core.content.ContextCompat
+import androidx.annotation.RequiresApi
 import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.model.DisturbCondition
 import com.example.donotbotherme.view.CONDITION_LIST
-import java.lang.StringBuilder
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.text.StringBuilder
 
 //необходимо корректно сравнить текущую дату (время) с датами из условия
 class CallListener : BroadcastReceiver() {
@@ -22,20 +23,20 @@ class CallListener : BroadcastReceiver() {
     lateinit var conditionsList: ArrayList<DisturbCondition>
     private var isProgramSetSilent = false
     var mustRemainSilent = false
-    var isNumberFound = false
-    var currentFoundContact : DisturbCondition? = null
+    private var currentFoundContact : DisturbCondition? = null
+    var daysStringBuilder = StringBuilder()
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
-        println("onReceive BEB")
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
-            println("$phone BEB")
             phoneNumber = phone.toString()
             compareConditions(context)
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun compareConditions(context: Context?) {
 
         val tinyDB = TinyDB(context)
@@ -45,26 +46,83 @@ class CallListener : BroadcastReceiver() {
         ) as ArrayList<DisturbCondition>
 
         compareNumber(context)
-        compareTime(context)
-//        compareDay()
+//        compareTime()
+//        compareDay(context)
     }
 
-    private fun compareTime(context: Context?) {
-        if (isNumberFound) {
-            isNumberFound = false
-            val timeStart = currentFoundContact?.timeStart
-            val timeEnd = currentFoundContact?.timeEnd
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun compareNumber(context: Context?){
+        for (i in 0 until conditionsList.size) {
+            val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
+            if (formattedNumber == phoneNumber) {
+//                changePhoneState(context)
 
-            val currentDate = Calendar.getInstance().time.toString()
-            val timeData = currentDate.split(" ")
-            val timeDataSplit = timeData[3].split(":")
-            val currentTime = timeDataSplit[0] + ":" + timeDataSplit[1]
-            println("$currentTime BEBOO")
-
-//            compareDates(timeStart, timeEnd)
-
+                currentFoundContact = conditionsList[i]
+                compareDay(context)
+            } else {
+                currentFoundContact = null
+                daysStringBuilder = StringBuilder()
+            }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun compareDay(context: Context?) {
+
+            println("compareDay BEB")
+            val currentDay = LocalDate.now().dayOfWeek.name
+            getDaysBooleans()
+            val daysString = daysStringBuilder.toString()
+            val daysList = daysString.split(" ")
+            for (i in daysList.indices) {
+                if (daysList[i] == currentDay) {
+                    changePhoneState(context)
+                    break
+                } else {
+                    currentFoundContact = null
+                    daysStringBuilder = StringBuilder()
+                }
+            }
+        }
+
+
+    private fun getDaysBooleans() {
+        appendDaysStringBuilder(currentFoundContact?.isMondayBlocked, "MONDAY")
+        appendDaysStringBuilder(currentFoundContact?.isTuesdayBlocked, "TUESDAY")
+        appendDaysStringBuilder(currentFoundContact?.isWednesdayBlocked, "WEDNESDAY")
+        appendDaysStringBuilder(currentFoundContact?.isThursdayBlocked, "THURSDAY")
+        appendDaysStringBuilder(currentFoundContact?.isFridayBlocked, "FRIDAY")
+        appendDaysStringBuilder(currentFoundContact?.isSaturdayBlocked, "SATURDAY")
+        appendDaysStringBuilder(currentFoundContact?.isSundayBlocked, "SUNDAY")
+    }
+
+    private fun appendDaysStringBuilder(dayBoolean: Boolean?, text: String) {
+        if (dayBoolean == true) {
+            daysStringBuilder.append("$text ")
+        }
+    }
+
+    private fun getCurrentTimeByStringList() : List<String> {
+        val currentDate = Calendar.getInstance().time.toString()
+        val timeData = currentDate.split(" ")
+        val timeDataSplit = timeData[3].split(":")
+        return timeDataSplit
+    }
+
+//    private fun compareTime() {
+//        if (isNumberFound) {
+//            isNumberFound = false
+//            val timeStart = currentFoundContact?.timeStart
+//            val timeEnd = currentFoundContact?.timeEnd
+//
+//            val timeDataSplit = getCurrentTimeByStringList()
+//            val currentTime = timeDataSplit[0] + ":" + timeDataSplit[1]
+//            println("$currentTime BEBOO")
+//
+//            compareDates(timeStart, timeEnd)
+//
+//        }
+//    }
 
 
     private fun compareDates(str_date1:String?, str_date2:String?):Int {
@@ -84,18 +142,6 @@ class CallListener : BroadcastReceiver() {
         return date1.compareTo(date2)
     }
 
-
-    private fun compareNumber(context: Context?){
-        for (i in 0 until conditionsList.size) {
-            val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
-            if (formattedNumber == phoneNumber) {
-                changePhoneState(context)
-                isNumberFound = true
-                currentFoundContact = conditionsList[i]
-            }
-        }
-    }
-
     private fun formatNumber(number: String): String {
         val formattedNumber = StringBuilder()
         val numberInChars = number.toCharArray()
@@ -108,6 +154,7 @@ class CallListener : BroadcastReceiver() {
     }
 
     private fun changePhoneState(context: Context?) {
+        println("changePhoneState BEB")
         val audioManager: AudioManager =
             context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val currentPhoneState = audioManager.ringerMode
