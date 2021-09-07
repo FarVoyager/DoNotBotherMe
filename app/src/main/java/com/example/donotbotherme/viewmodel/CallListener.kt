@@ -17,6 +17,12 @@ import kotlin.collections.ArrayList
 import kotlin.text.StringBuilder
 
 //необходимо корректно сравнить текущую дату (время) с датами из условия
+//написать логику изменения состояния
+
+const val PREFS_KEY_CALL = "PREFS_KEY_CALL"
+const val PREFS_KEY_ORIG_STATE = "PREFS_KEY_ORIG_STATE"
+
+
 class CallListener : BroadcastReceiver() {
 
     var phoneNumber = "empty"
@@ -25,10 +31,19 @@ class CallListener : BroadcastReceiver() {
     var mustRemainSilent = false
     private var currentFoundContact : DisturbCondition? = null
     var daysStringBuilder = StringBuilder()
-
+    private val isCallEnded = true
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
+        println("onReceive BEB")
+
+//        val audioManager: AudioManager =
+//            context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+//        val currentPhoneState = audioManager.ringerMode
+//        val sharedPreferences = context.getSharedPreferences("phoneStatePrefs", Context.MODE_PRIVATE)
+//        sharedPreferences?.edit()?.putInt("currentPhoneState", currentPhoneState)?.apply()
+//        sharedPreferences?.edit()?.putBoolean("isCallStarted", isCallStarted)?.apply()
+
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
             phoneNumber = phone.toString()
@@ -154,31 +169,60 @@ class CallListener : BroadcastReceiver() {
     }
 
     private fun changePhoneState(context: Context?) {
+
         println("changePhoneState BEB")
         val audioManager: AudioManager =
             context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val currentPhoneState = audioManager.ringerMode
-        //действия при начале звонка
-        if (!isProgramSetSilent) {
-            if (currentPhoneState != AudioManager.RINGER_MODE_SILENT) {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+
+        val sharedPreferences = context.getSharedPreferences("callPrefs", Context.MODE_PRIVATE)
+        val callState = sharedPreferences?.getBoolean(PREFS_KEY_CALL, false)
+
+        //начало звонка
+        if (callState == null || callState == false) {
+            if (currentPhoneState == AudioManager.RINGER_MODE_NORMAL) {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                isProgramSetSilent = true
-            } else {
-                mustRemainSilent = true
-                isProgramSetSilent = true
+            } else if (currentPhoneState == AudioManager.RINGER_MODE_SILENT) {
+                //do nothing
             }
-            //действия при окончании звонка
-        } else {
-            if (!mustRemainSilent) {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                isProgramSetSilent = false
-                mustRemainSilent = false
-            } else {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                isProgramSetSilent = false
-                mustRemainSilent = false
-            }
+            sharedPreferences.edit().putBoolean(PREFS_KEY_CALL, isCallEnded).apply()
+            sharedPreferences.edit().putInt(PREFS_KEY_ORIG_STATE, currentPhoneState).apply()
         }
+        //конец звонка
+        else if (callState == true) {
+            val originalState = sharedPreferences.getInt(PREFS_KEY_ORIG_STATE, -1)
+            if (currentPhoneState == AudioManager.RINGER_MODE_NORMAL) {
+                //do nothing
+            } else if (currentPhoneState == AudioManager.RINGER_MODE_SILENT) {
+                audioManager.ringerMode = originalState
+            }
+            sharedPreferences.edit().putBoolean(PREFS_KEY_CALL, !isCallEnded).apply()
+        }
+
+
+
+
+//        //действия при начале звонка
+//        if (!isProgramSetSilent) {
+//            if (currentPhoneState != AudioManager.RINGER_MODE_SILENT) {
+//                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+//                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+//                isProgramSetSilent = true
+//            } else {
+//                mustRemainSilent = true
+//                isProgramSetSilent = true
+//            }
+//            //действия при окончании звонка
+//        } else {
+//            if (!mustRemainSilent) {
+//                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+//                isProgramSetSilent = false
+//                mustRemainSilent = false
+//            } else {
+//                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+//                isProgramSetSilent = false
+//                mustRemainSilent = false
+//            }
+//        }
     }
 }
