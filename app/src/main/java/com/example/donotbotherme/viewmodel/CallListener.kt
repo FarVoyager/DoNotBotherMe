@@ -6,6 +6,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.telephony.TelephonyManager
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.model.DisturbCondition
@@ -37,13 +38,6 @@ class CallListener : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         println("onReceive BEB")
 
-//        val audioManager: AudioManager =
-//            context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-//        val currentPhoneState = audioManager.ringerMode
-//        val sharedPreferences = context.getSharedPreferences("phoneStatePrefs", Context.MODE_PRIVATE)
-//        sharedPreferences?.edit()?.putInt("currentPhoneState", currentPhoneState)?.apply()
-//        sharedPreferences?.edit()?.putBoolean("isCallStarted", isCallStarted)?.apply()
-
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
             phoneNumber = phone.toString()
@@ -61,7 +55,7 @@ class CallListener : BroadcastReceiver() {
         ) as ArrayList<DisturbCondition>
 
         compareNumber(context)
-//        compareTime()
+//        compareTime(context)
 //        compareDay(context)
     }
 
@@ -91,7 +85,7 @@ class CallListener : BroadcastReceiver() {
             val daysList = daysString.split(" ")
             for (i in daysList.indices) {
                 if (daysList[i] == currentDay) {
-                    changePhoneState(context)
+                    compareTime(context)
                     break
                 } else {
                     currentFoundContact = null
@@ -99,6 +93,41 @@ class CallListener : BroadcastReceiver() {
                 }
             }
         }
+
+        private fun compareTime(context: Context?) {
+
+            val timeStart = currentFoundContact?.timeStart
+            val timeStartValues = timeStart?.split(".")
+            val timeStartHours = timeStartValues?.get(0)?.toInt()
+            val timeStartMinutes = timeStartValues?.get(1)?.toInt()
+            val timeEnd = currentFoundContact?.timeEnd
+            val timeEndValues = timeEnd?.split(".")
+            val timeEndHours = timeEndValues?.get(0)?.toInt()
+            val timeEndMinutes = timeEndValues?.get(1)?.toInt()
+
+            val currentTimeDataSplit = getCurrentTimeByStringList()
+            val currentTime = currentTimeDataSplit[0] + ":" + currentTimeDataSplit[1]
+            println("$currentTime BEBOO")
+            val currentHours = currentTimeDataSplit[0].toInt()
+            val currentMinutes = currentTimeDataSplit[1].toInt()
+
+            if (timeStartHours == null || timeEndHours == null || timeStartMinutes == null || timeEndMinutes == null) {
+                Toast.makeText(context, "something in end/start is null", Toast.LENGTH_SHORT).show()
+            } else if (currentHours > timeStartHours && currentHours < timeEndHours) {
+                changePhoneState(context)
+            } else if (currentHours == timeStartHours) {
+                if (currentMinutes >= timeStartMinutes) {
+                    changePhoneState(context)
+                }
+            } else if (currentHours == timeEndHours) {
+                if (currentMinutes <= timeEndMinutes) {
+                    changePhoneState(context)
+                }
+            }
+
+//            compareDates(timeStart, timeEnd)
+
+    }
 
 
     private fun getDaysBooleans() {
@@ -124,38 +153,25 @@ class CallListener : BroadcastReceiver() {
         return timeDataSplit
     }
 
-//    private fun compareTime() {
-//        if (isNumberFound) {
-//            isNumberFound = false
-//            val timeStart = currentFoundContact?.timeStart
-//            val timeEnd = currentFoundContact?.timeEnd
+
+
+
+//    private fun compareDates(str_date1:String?, str_date2:String?):Int {
+//        lateinit var date1:Date
+//        lateinit var date2:Date
 //
-//            val timeDataSplit = getCurrentTimeByStringList()
-//            val currentTime = timeDataSplit[0] + ":" + timeDataSplit[1]
-//            println("$currentTime BEBOO")
+//        if (str_date1 != null && str_date2 != null) {
+//            if (str_date1.isNotEmpty() && str_date2.isNotEmpty()) {
+//                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+//                date1 = formatter.parse(str_date1)
+//                date2 = formatter.parse(str_date2)
+//                println("$date1 BEB")
+//                println("$date2 BEB")
 //
-//            compareDates(timeStart, timeEnd)
-//
+//            }
 //        }
+//        return date1.compareTo(date2)
 //    }
-
-
-    private fun compareDates(str_date1:String?, str_date2:String?):Int {
-        lateinit var date1:Date
-        lateinit var date2:Date
-
-        if (str_date1 != null && str_date2 != null) {
-            if (str_date1.isNotEmpty() && str_date2.isNotEmpty()) {
-                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                date1 = formatter.parse(str_date1)
-                date2 = formatter.parse(str_date2)
-                println("$date1 BEB")
-                println("$date2 BEB")
-
-            }
-        }
-        return date1.compareTo(date2)
-    }
 
     private fun formatNumber(number: String): String {
         val formattedNumber = StringBuilder()
