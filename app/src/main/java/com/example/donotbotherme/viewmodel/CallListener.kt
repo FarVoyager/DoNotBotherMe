@@ -28,8 +28,6 @@ class CallListener : BroadcastReceiver() {
 
     var phoneNumber = "empty"
     lateinit var conditionsList: ArrayList<DisturbCondition>
-    private var isProgramSetSilent = false
-    var mustRemainSilent = false
     private var currentFoundContact : DisturbCondition? = null
     var daysStringBuilder = StringBuilder()
     private val isCallEnded = true
@@ -37,37 +35,40 @@ class CallListener : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
         println("onReceive BEB")
-
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
-            phoneNumber = phone.toString()
+            phoneNumber =  formatNumber(phone.toString())
             compareConditions(context)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun compareConditions(context: Context?) {
-
         val tinyDB = TinyDB(context)
         conditionsList = tinyDB.getListObject(
             CONDITION_LIST,
             DisturbCondition::class.java
         ) as ArrayList<DisturbCondition>
-
         compareNumber(context)
-//        compareTime(context)
-//        compareDay(context)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun compareNumber(context: Context?){
+        println("compareNumber BEB")
         for (i in 0 until conditionsList.size) {
             val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
-            if (formattedNumber == phoneNumber) {
-//                changePhoneState(context)
+            val formattedNumberFirstSeven = formattedNumber.replaceFirstChar {
+                '7'
+            }
+            val formattedNumberFirstEight = formattedNumber.replaceFirstChar {
+                '8'
+            }
+            if (formattedNumberFirstEight == phoneNumber || formattedNumberFirstSeven == phoneNumber) {
 
                 currentFoundContact = conditionsList[i]
-                compareDay(context)
+//                Toast.makeText(context, "Number Found", Toast.LENGTH_SHORT).show()
+                compareTime(context)
+
             } else {
                 currentFoundContact = null
                 daysStringBuilder = StringBuilder()
@@ -78,14 +79,18 @@ class CallListener : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun compareDay(context: Context?) {
 
-            println("compareDay BEB")
+        Toast.makeText(context, "COMPARE DAY", Toast.LENGTH_SHORT).show()
+
+        println("compareDay BEB")
             val currentDay = LocalDate.now().dayOfWeek.name
             getDaysBooleans()
             val daysString = daysStringBuilder.toString()
             val daysList = daysString.split(" ")
             for (i in daysList.indices) {
                 if (daysList[i] == currentDay) {
-                    compareTime(context)
+                    Toast.makeText(context, "CHANGE PHONE STATE", Toast.LENGTH_SHORT).show()
+
+                    changePhoneState(context)
                     break
                 } else {
                     currentFoundContact = null
@@ -94,8 +99,12 @@ class CallListener : BroadcastReceiver() {
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         private fun compareTime(context: Context?) {
+            println("compareTime BEB")
+            Toast.makeText(context, "COMPARE TIME", Toast.LENGTH_SHORT).show()
 
+            //вычленение значений часов и минут
             val timeStart = currentFoundContact?.timeStart
             val timeStartValues = timeStart?.split(".")
             val timeStartHours = timeStartValues?.get(0)?.toInt()
@@ -104,29 +113,24 @@ class CallListener : BroadcastReceiver() {
             val timeEndValues = timeEnd?.split(".")
             val timeEndHours = timeEndValues?.get(0)?.toInt()
             val timeEndMinutes = timeEndValues?.get(1)?.toInt()
-
             val currentTimeDataSplit = getCurrentTimeByStringList()
-            val currentTime = currentTimeDataSplit[0] + ":" + currentTimeDataSplit[1]
-            println("$currentTime BEBOO")
             val currentHours = currentTimeDataSplit[0].toInt()
             val currentMinutes = currentTimeDataSplit[1].toInt()
 
+            //сравнение текущего времени и времени условий
             if (timeStartHours == null || timeEndHours == null || timeStartMinutes == null || timeEndMinutes == null) {
                 Toast.makeText(context, "something in end/start is null", Toast.LENGTH_SHORT).show()
             } else if (currentHours > timeStartHours && currentHours < timeEndHours) {
-                changePhoneState(context)
+                compareDay(context)
             } else if (currentHours == timeStartHours) {
-                if (currentMinutes >= timeStartMinutes) {
-                    changePhoneState(context)
+                if (currentMinutes > timeStartMinutes) {
+                    compareDay(context)
                 }
             } else if (currentHours == timeEndHours) {
-                if (currentMinutes <= timeEndMinutes) {
-                    changePhoneState(context)
+                if (currentMinutes < timeEndMinutes) {
+                    compareDay(context)
                 }
             }
-
-//            compareDates(timeStart, timeEnd)
-
     }
 
 
@@ -153,30 +157,10 @@ class CallListener : BroadcastReceiver() {
         return timeDataSplit
     }
 
-
-
-
-//    private fun compareDates(str_date1:String?, str_date2:String?):Int {
-//        lateinit var date1:Date
-//        lateinit var date2:Date
-//
-//        if (str_date1 != null && str_date2 != null) {
-//            if (str_date1.isNotEmpty() && str_date2.isNotEmpty()) {
-//                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-//                date1 = formatter.parse(str_date1)
-//                date2 = formatter.parse(str_date2)
-//                println("$date1 BEB")
-//                println("$date2 BEB")
-//
-//            }
-//        }
-//        return date1.compareTo(date2)
-//    }
-
     private fun formatNumber(number: String): String {
         val formattedNumber = StringBuilder()
         val numberInChars = number.toCharArray()
-        for (i in 0 until numberInChars.size) {
+        for (i in numberInChars.indices) {
             if (numberInChars[i] == '0' || numberInChars[i] == '1' || numberInChars[i] == '2' || numberInChars[i] == '3' || numberInChars[i] == '4' || numberInChars[i] == '5' || numberInChars[i] == '6' || numberInChars[i] == '7' || numberInChars[i] == '8' || numberInChars[i] == '9') {
                 formattedNumber.append(numberInChars[i])
             }
@@ -185,6 +169,7 @@ class CallListener : BroadcastReceiver() {
     }
 
     private fun changePhoneState(context: Context?) {
+        Toast.makeText(context, "PHONE STATE CHANGED", Toast.LENGTH_SHORT).show()
 
         println("changePhoneState BEB")
         val audioManager: AudioManager =
@@ -214,31 +199,5 @@ class CallListener : BroadcastReceiver() {
             }
             sharedPreferences.edit().putBoolean(PREFS_KEY_CALL, !isCallEnded).apply()
         }
-
-
-
-
-//        //действия при начале звонка
-//        if (!isProgramSetSilent) {
-//            if (currentPhoneState != AudioManager.RINGER_MODE_SILENT) {
-//                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-//                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-//                isProgramSetSilent = true
-//            } else {
-//                mustRemainSilent = true
-//                isProgramSetSilent = true
-//            }
-//            //действия при окончании звонка
-//        } else {
-//            if (!mustRemainSilent) {
-//                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-//                isProgramSetSilent = false
-//                mustRemainSilent = false
-//            } else {
-//                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-//                isProgramSetSilent = false
-//                mustRemainSilent = false
-//            }
-//        }
     }
 }

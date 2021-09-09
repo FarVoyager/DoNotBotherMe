@@ -164,7 +164,6 @@ class ConditionFragment : Fragment() {
             cursorWithContacts?.let { cursor ->
                 for (i in 0..cursor.count) {
                     if (cursor.moveToPosition(i)) {
-                        println("$i BEB")
                         val name =
                             cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
                         val phoneNumber =

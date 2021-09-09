@@ -71,7 +71,7 @@ class MainFragment : Fragment() {
 
                 for (i in 0 until conditionsList.size) {
                     binding.createdConditionsLayout.addView(AppCompatTextView(requireContext()).apply {
-                        val textToView = conditionsList[i].contactName + " " + conditionsList[i].contactNumber
+                        val textToView = conditionsList[i].contactName + " " + conditionsList[i].contactNumber + " " + conditionsList[i].timeStart + "-" + conditionsList[i].timeEnd
                         text = textToView
                     })
                 }
