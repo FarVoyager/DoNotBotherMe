@@ -6,4 +6,6 @@
     <string name="clearAllBtnText">Удалить все</string>
     <string name="CreatedTitle">Созданные условия:</string>
     <string name="button_done">Готово</string>
+    <string name="context_menu_item_info">Подробнее</string>
+    <string name="context_menu_item_delete">Удалить</string>
 </resources>

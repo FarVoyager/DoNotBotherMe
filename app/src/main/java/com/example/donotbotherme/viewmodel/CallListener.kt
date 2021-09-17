@@ -17,12 +17,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.text.StringBuilder
 
-//необходимо корректно сравнить текущую дату (время) с датами из условия
-//написать логику изменения состояния
-
 const val PREFS_KEY_CALL = "PREFS_KEY_CALL"
 const val PREFS_KEY_ORIG_STATE = "PREFS_KEY_ORIG_STATE"
-
 
 class CallListener : BroadcastReceiver() {
 
@@ -38,6 +34,8 @@ class CallListener : BroadcastReceiver() {
         if (intent?.action.equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
             val phone = intent?.extras?.getString(TelephonyManager.EXTRA_INCOMING_NUMBER)
             phoneNumber =  formatNumber(phone.toString())
+            println("phoneNumber: $phoneNumber BEB")
+
             compareConditions(context)
         }
     }
@@ -66,10 +64,12 @@ class CallListener : BroadcastReceiver() {
             if (formattedNumberFirstEight == phoneNumber || formattedNumberFirstSeven == phoneNumber) {
 
                 currentFoundContact = conditionsList[i]
-//                Toast.makeText(context, "Number Found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Number Found BEB", Toast.LENGTH_SHORT).show()
                 compareTime(context)
 
             } else {
+                Toast.makeText(context, "Number NOT Found BEB", Toast.LENGTH_SHORT).show()
+
                 currentFoundContact = null
                 daysStringBuilder = StringBuilder()
             }
@@ -79,7 +79,6 @@ class CallListener : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun compareDay(context: Context?) {
 
-        Toast.makeText(context, "COMPARE DAY", Toast.LENGTH_SHORT).show()
 
         println("compareDay BEB")
             val currentDay = LocalDate.now().dayOfWeek.name
@@ -88,7 +87,6 @@ class CallListener : BroadcastReceiver() {
             val daysList = daysString.split(" ")
             for (i in daysList.indices) {
                 if (daysList[i] == currentDay) {
-                    Toast.makeText(context, "CHANGE PHONE STATE", Toast.LENGTH_SHORT).show()
 
                     changePhoneState(context)
                     break
@@ -102,7 +100,6 @@ class CallListener : BroadcastReceiver() {
         @RequiresApi(Build.VERSION_CODES.O)
         private fun compareTime(context: Context?) {
             println("compareTime BEB")
-            Toast.makeText(context, "COMPARE TIME", Toast.LENGTH_SHORT).show()
 
             //вычленение значений часов и минут
             val timeStart = currentFoundContact?.timeStart
@@ -169,7 +166,6 @@ class CallListener : BroadcastReceiver() {
     }
 
     private fun changePhoneState(context: Context?) {
-        Toast.makeText(context, "PHONE STATE CHANGED", Toast.LENGTH_SHORT).show()
 
         println("changePhoneState BEB")
         val audioManager: AudioManager =

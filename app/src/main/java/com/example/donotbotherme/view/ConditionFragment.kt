@@ -19,6 +19,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import com.example.donotbotherme.R
+import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.databinding.FragmentConditionBinding
 import com.example.donotbotherme.model.DisturbCondition
 
@@ -70,50 +71,150 @@ class ConditionFragment : Fragment() {
                 !binding.startTimeMinuteEditText.text.isNullOrEmpty() &&
                 !binding.endTimeMinuteEditText.text.isNullOrEmpty()
             ) {
-                //если числа больше допустимых
-                if (parseIntValue(binding.startTimeHourEditText.text.toString()) > 24 ||
-                    parseIntValue(binding.endTimeHourEditText.text.toString()) > 24 ||
-                    parseIntValue(binding.startTimeMinuteEditText.text.toString()) > 60 ||
-                    parseIntValue(binding.endTimeMinuteEditText.text.toString()) > 60
-                ) {
-                    Toast.makeText(requireContext(), "Неверный формат времени", Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    val contactName = chosenContactName
-                    val contactNumber = chosenContactNumber
-                    val startTime = binding.startTimeHourEditText.text.toString() + "." + binding.startTimeMinuteEditText.text.toString()
-                    val endTime = binding.endTimeHourEditText.text.toString() + "." + binding.endTimeMinuteEditText.text.toString()
-                    val isMonday = binding.checkMonday.isChecked
-                    val isTuesday = binding.checkTuesday.isChecked
-                    val isWednesday = binding.checkWednesday.isChecked
-                    val isThursday = binding.checkThursday.isChecked
-                    val isFriday = binding.checkFriday.isChecked
-                    val isSaturday = binding.checkSaturday.isChecked
-                    val isSunday = binding.checkSunday.isChecked
 
-                    val condition = DisturbCondition(
-                        contactName,
-                        contactNumber,
-                        startTime,
-                        endTime,
-                        isMonday,
-                        isTuesday,
-                        isWednesday,
-                        isThursday,
-                        isFriday,
-                        isSaturday,
-                        isSunday
-                    )
+//                if (compareConditionsOfEqualNumbers()) {
 
-                    val bundle = Bundle()
-                    bundle.putParcelable(NEW_CONDITION, condition)
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.container, MainFragment.newInstance(bundle))
-                        .commit()
-                }
+                    //если числа больше допустимых или начало позже конца
+                    if (parseIntValue(binding.startTimeHourEditText.text.toString()) > 24 ||
+                        parseIntValue(binding.endTimeHourEditText.text.toString()) > 24 ||
+                        parseIntValue(binding.startTimeMinuteEditText.text.toString()) > 60 ||
+                        parseIntValue(binding.endTimeMinuteEditText.text.toString()) > 60 ||
+                        parseIntValue(binding.startTimeHourEditText.text.toString()) > parseIntValue(
+                            binding.endTimeHourEditText.text.toString()
+                        )
+                    ) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Неверный формат времени",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    } else {
+                        val contactName = chosenContactName
+                        val contactNumber = chosenContactNumber
+                        val startTime =
+                            binding.startTimeHourEditText.text.toString() + "." + binding.startTimeMinuteEditText.text.toString()
+                        val endTime =
+                            binding.endTimeHourEditText.text.toString() + "." + binding.endTimeMinuteEditText.text.toString()
+                        val isMonday = binding.checkMonday.isChecked
+                        val isTuesday = binding.checkTuesday.isChecked
+                        val isWednesday = binding.checkWednesday.isChecked
+                        val isThursday = binding.checkThursday.isChecked
+                        val isFriday = binding.checkFriday.isChecked
+                        val isSaturday = binding.checkSaturday.isChecked
+                        val isSunday = binding.checkSunday.isChecked
+
+                        val condition = DisturbCondition(
+                            contactName,
+                            contactNumber,
+                            startTime,
+                            endTime,
+                            isMonday,
+                            isTuesday,
+                            isWednesday,
+                            isThursday,
+                            isFriday,
+                            isSaturday,
+                            isSunday
+                        )
+
+                        val bundle = Bundle()
+                        bundle.putParcelable(NEW_CONDITION, condition)
+                        requireActivity().supportFragmentManager.beginTransaction()
+                            .replace(R.id.container, MainFragment.newInstance(bundle))
+                            .commit()
+                    }
+//                } else {
+//                    Toast.makeText(requireContext(), "BITCH", Toast.LENGTH_SHORT)
+//                        .show()
+//                }
+            } else {
+                Toast.makeText(requireContext(), "Некоторые поля пусты", Toast.LENGTH_SHORT)
+                    .show()
+
             }
         }
 
+    }
+
+    //где-то ошибочная логика
+    private fun compareConditionsOfEqualNumbers(): Boolean {
+        var isTimeOk = false
+        var isDaysOk = false
+
+        val tinyDB = TinyDB(requireContext())
+        val conditionsList = tinyDB.getListObject(
+            CONDITION_LIST,
+            DisturbCondition::class.java
+        ) as ArrayList<DisturbCondition>
+        println(conditionsList.size.toString() + " BEBSIZE")
+        for (i in 0 until conditionsList.size) {
+
+            println("$i BEBS")
+            val timeStart = conditionsList[i].timeStart
+            val timeStartValues = timeStart?.split(".")
+            val timeStartHours = timeStartValues?.get(0)?.toInt()
+            val timeStartMinutes = timeStartValues?.get(1)?.toInt()
+            val timeEnd = conditionsList[i].timeEnd
+            val timeEndValues = timeEnd?.split(".")
+            val timeEndHours = timeEndValues?.get(0)?.toInt()
+            val timeEndMinutes = timeEndValues?.get(1)?.toInt()
+
+            if (conditionsList[i].contactNumber == chosenContactNumber) {
+                if (parseIntValue(binding.startTimeHourEditText.text.toString()) > timeStartHours!! &&
+                    parseIntValue(binding.startTimeHourEditText.text.toString()) < timeEndHours!!
+                ) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Указанное время конфликтует с уже созданным условием",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else if (parseIntValue(binding.endTimeHourEditText.text.toString()) > timeStartHours &&
+                    parseIntValue(binding.endTimeHourEditText.text.toString()) < timeEndHours!!
+                ) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Указанное время конфликтует с уже созданным условием",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else {
+                    isTimeOk = true
+                }
+            } else {
+                isTimeOk = true
+            }
+            if (conditionsList[i].isMondayBlocked && binding.checkMonday.isChecked ||
+                conditionsList[i].isTuesdayBlocked && binding.checkTuesday.isChecked ||
+                conditionsList[i].isWednesdayBlocked && binding.checkWednesday.isChecked ||
+                conditionsList[i].isThursdayBlocked && binding.checkThursday.isChecked ||
+                conditionsList[i].isFridayBlocked && binding.checkFriday.isChecked ||
+                conditionsList[i].isSaturdayBlocked && binding.checkSaturday.isChecked ||
+                conditionsList[i].isSundayBlocked && binding.checkSunday.isChecked
+            ) {
+                Toast.makeText(
+                    requireContext(),
+                    "Указанные дни конфликтуют с уже созданным условием",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            } else {
+                isDaysOk = true
+            }
+        }
+        if (conditionsList.size == 0) {
+            println("return TRUE BEB empty list")
+
+            return true
+        }
+
+        if (isDaysOk && isTimeOk) {
+            println("return TRUE BEB")
+            return true
+        }
+        println("return FALSE BEB ($isTimeOk $isDaysOk")
+        return false
     }
 
     private fun parseIntValue(string: String): Int {
