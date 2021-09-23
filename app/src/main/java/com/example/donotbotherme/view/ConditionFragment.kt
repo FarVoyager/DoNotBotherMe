@@ -120,6 +120,7 @@ class ConditionFragment : Fragment() {
 
                         val bundle = Bundle()
                         bundle.putParcelable(NEW_CONDITION, condition)
+                        bundle.putInt(IS_CONDITION_CREATED, 1)
                         requireActivity().supportFragmentManager.beginTransaction()
                             .replace(R.id.container, MainFragment.newInstance(bundle))
                             .commit()

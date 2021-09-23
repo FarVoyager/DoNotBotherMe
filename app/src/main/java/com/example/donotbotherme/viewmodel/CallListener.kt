@@ -27,6 +27,7 @@ class CallListener : BroadcastReceiver() {
     private var currentFoundContact : DisturbCondition? = null
     var daysStringBuilder = StringBuilder()
     private val isCallEnded = true
+    private var positionF = 0
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -47,13 +48,14 @@ class CallListener : BroadcastReceiver() {
             CONDITION_LIST,
             DisturbCondition::class.java
         ) as ArrayList<DisturbCondition>
-        compareNumber(context)
+        compareNumber(context, 0)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun compareNumber(context: Context?){
+    private fun compareNumber(context: Context?, startPosition: Int){
         println("compareNumber BEB")
-        for (i in 0 until conditionsList.size) {
+        positionF = startPosition
+        for (i in positionF until conditionsList.size) {
             val formattedNumber = formatNumber(conditionsList[i].contactNumber.toString())
             val formattedNumberFirstSeven = formattedNumber.replaceFirstChar {
                 '7'
@@ -62,17 +64,53 @@ class CallListener : BroadcastReceiver() {
                 '8'
             }
             if (formattedNumberFirstEight == phoneNumber || formattedNumberFirstSeven == phoneNumber) {
-
+                positionF = if (i < conditionsList.size - 1) { i + 1 } else { 0 }
                 currentFoundContact = conditionsList[i]
                 Toast.makeText(context, "Number Found BEB", Toast.LENGTH_SHORT).show()
                 compareTime(context)
-
+            } else if (i < conditionsList.size - 1) {
+                continue
             } else {
                 Toast.makeText(context, "Number NOT Found BEB", Toast.LENGTH_SHORT).show()
 
                 currentFoundContact = null
                 daysStringBuilder = StringBuilder()
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun compareTime(context: Context?) {
+        println("compareTime BEB")
+
+        //вычленение значений часов и минут
+        val timeStart = currentFoundContact?.timeStart
+        val timeStartValues = timeStart?.split(".")
+        val timeStartHours = timeStartValues?.get(0)?.toInt()
+        val timeStartMinutes = timeStartValues?.get(1)?.toInt()
+        val timeEnd = currentFoundContact?.timeEnd
+        val timeEndValues = timeEnd?.split(".")
+        val timeEndHours = timeEndValues?.get(0)?.toInt()
+        val timeEndMinutes = timeEndValues?.get(1)?.toInt()
+        val currentTimeDataSplit = getCurrentTimeByStringList()
+        val currentHours = currentTimeDataSplit[0].toInt()
+        val currentMinutes = currentTimeDataSplit[1].toInt()
+
+        //сравнение текущего времени и времени условий
+        if (timeStartHours == null || timeEndHours == null || timeStartMinutes == null || timeEndMinutes == null) {
+            Toast.makeText(context, "something in end/start is null", Toast.LENGTH_SHORT).show()
+        } else if (currentHours > timeStartHours && currentHours < timeEndHours) {
+            compareDay(context)
+        } else if (currentHours == timeStartHours) {
+            if (currentMinutes > timeStartMinutes) {
+                compareDay(context)
+            }
+        } else if (currentHours == timeEndHours) {
+            if (currentMinutes < timeEndMinutes) {
+                compareDay(context)
+            }
+        } else {
+            compareNumber(context, positionF)
         }
     }
 
@@ -96,40 +134,6 @@ class CallListener : BroadcastReceiver() {
                 }
             }
         }
-
-        @RequiresApi(Build.VERSION_CODES.O)
-        private fun compareTime(context: Context?) {
-            println("compareTime BEB")
-
-            //вычленение значений часов и минут
-            val timeStart = currentFoundContact?.timeStart
-            val timeStartValues = timeStart?.split(".")
-            val timeStartHours = timeStartValues?.get(0)?.toInt()
-            val timeStartMinutes = timeStartValues?.get(1)?.toInt()
-            val timeEnd = currentFoundContact?.timeEnd
-            val timeEndValues = timeEnd?.split(".")
-            val timeEndHours = timeEndValues?.get(0)?.toInt()
-            val timeEndMinutes = timeEndValues?.get(1)?.toInt()
-            val currentTimeDataSplit = getCurrentTimeByStringList()
-            val currentHours = currentTimeDataSplit[0].toInt()
-            val currentMinutes = currentTimeDataSplit[1].toInt()
-
-            //сравнение текущего времени и времени условий
-            if (timeStartHours == null || timeEndHours == null || timeStartMinutes == null || timeEndMinutes == null) {
-                Toast.makeText(context, "something in end/start is null", Toast.LENGTH_SHORT).show()
-            } else if (currentHours > timeStartHours && currentHours < timeEndHours) {
-                compareDay(context)
-            } else if (currentHours == timeStartHours) {
-                if (currentMinutes > timeStartMinutes) {
-                    compareDay(context)
-                }
-            } else if (currentHours == timeEndHours) {
-                if (currentMinutes < timeEndMinutes) {
-                    compareDay(context)
-                }
-            }
-    }
-
 
     private fun getDaysBooleans() {
         appendDaysStringBuilder(currentFoundContact?.isMondayBlocked, "MONDAY")

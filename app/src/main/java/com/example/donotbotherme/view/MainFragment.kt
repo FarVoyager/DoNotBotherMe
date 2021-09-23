@@ -18,6 +18,8 @@ import com.example.donotbotherme.model.DisturbCondition
 
 const val REQUEST_CODE = 42
 const val CONDITION_LIST = "CONDITION_LIST"
+const val IS_CONDITION_CREATED = "IS_CONDITION_CREATED"
+
 
 class MainFragment : Fragment() {
 //контекстное меню не вызывается при долгом нажатии
@@ -26,8 +28,8 @@ class MainFragment : Fragment() {
     private lateinit var selectedItemView: AppCompatTextView
     private var viewId = 9000
 
-    lateinit var conditionsList: ArrayList<DisturbCondition>
-    private val objectList: ArrayList<Any> = ArrayList()
+    private lateinit var conditionsList: ArrayList<DisturbCondition>
+    private var objectList: ArrayList<Any> = ArrayList()
     private lateinit var tinyDB: TinyDB
 
     override fun onCreateView(
@@ -45,8 +47,11 @@ class MainFragment : Fragment() {
         tinyDB = TinyDB(requireContext())
 
         //логика заполнения списка условий
-        if (this.arguments?.getParcelable<DisturbCondition>(NEW_CONDITION) != null) { //если было создано новое условие
+        val arguments = this.arguments
+        if (arguments?.getParcelable<DisturbCondition>(NEW_CONDITION) != null &&
+            arguments.getInt(IS_CONDITION_CREATED) == 1) { //если было создано новое условие
             conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
+            arguments.putInt(IS_CONDITION_CREATED, 0)
         } else {
             if (tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) != null) { // если список условий уже не пуст
                 conditionsList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java) as ArrayList<DisturbCondition>
@@ -55,25 +60,31 @@ class MainFragment : Fragment() {
             }
         }
 
+        objectList.clear()
+        //сохранение списка условий в память телефона
         for (i in 0 until conditionsList.size) {
             objectList.add(conditionsList[i])
         }
         tinyDB.putListObject(CONDITION_LIST, objectList)
 
-        val retrievedList = tinyDB.getListObject(CONDITION_LIST, DisturbCondition::class.java)
-        println("$retrievedList BEBUS")
-
         val conditionBundle = this.arguments
         if (conditionBundle != null) {
             val retrievedCondition = conditionBundle.getParcelable<DisturbCondition>(NEW_CONDITION)
             if (retrievedCondition != null) {
+                println(" $retrievedCondition BEBS")
                 conditionsList.add(retrievedCondition)
-                    objectList.add(retrievedCondition)
+                objectList.clear()
+                for (i in 0 until conditionsList.size) {
+                    objectList.add(conditionsList[i])
+                }
                 tinyDB.putListObject(CONDITION_LIST, objectList)
+                conditionBundle.remove(NEW_CONDITION)
             }
         }
-            if (!conditionsList.isNullOrEmpty()) {
 
+
+        //отображение списка условий
+            if (!conditionsList.isNullOrEmpty()) {
                 for (i in 0 until conditionsList.size) {
                     binding.createdConditionsLayout.addView(AppCompatTextView(requireContext()).apply {
                         registerForContextMenu(this)
@@ -135,10 +146,10 @@ class MainFragment : Fragment() {
                     val listNumber = conditionsList[i].contactNumber
                     println("$numberToDelete $listNumber BEBSA")
                     if (conditionsList[i].contactNumber == numberToDelete) {
+                        conditionsList.removeAt(i)
                         objectList.removeAt(i)
                         tinyDB.putListObject(CONDITION_LIST, objectList)
                         println("$listNumber DELETED BEBSA")
-
                         break
                     } else {
                         Toast.makeText(requireContext(), "Nothing to remove", Toast.LENGTH_SHORT).show()
