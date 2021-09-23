@@ -32,6 +32,7 @@ class ConditionFragment : Fragment() {
 
     private var chosenContactNumber: String? = null
     private var chosenContactName: String? = null
+    private var isContactChosen = false
 
 
     override fun onCreateView(
@@ -65,8 +66,11 @@ class ConditionFragment : Fragment() {
         //действие при нажатии на кнопку "Готово"
         binding.buttonDone.setOnClickListener {
 
+            if (!isContactChosen) {
+                Toast.makeText(requireContext(), "Контакт не выбран", Toast.LENGTH_SHORT).show()
+            }
             //если поля не пусты
-            if (!binding.startTimeHourEditText.text.isNullOrEmpty() &&
+            else if (!binding.startTimeHourEditText.text.isNullOrEmpty() &&
                 !binding.endTimeHourEditText.text.isNullOrEmpty() &&
                 !binding.startTimeMinuteEditText.text.isNullOrEmpty() &&
                 !binding.endTimeMinuteEditText.text.isNullOrEmpty()
@@ -74,57 +78,67 @@ class ConditionFragment : Fragment() {
 
 //                if (compareConditionsOfEqualNumbers()) {
 
-                    //если числа больше допустимых или начало позже конца
-                    if (parseIntValue(binding.startTimeHourEditText.text.toString()) > 24 ||
-                        parseIntValue(binding.endTimeHourEditText.text.toString()) > 24 ||
-                        parseIntValue(binding.startTimeMinuteEditText.text.toString()) > 60 ||
-                        parseIntValue(binding.endTimeMinuteEditText.text.toString()) > 60 ||
-                        parseIntValue(binding.startTimeHourEditText.text.toString()) > parseIntValue(
-                            binding.endTimeHourEditText.text.toString()
-                        )
-                    ) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Неверный формат времени",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    } else {
-                        val contactName = chosenContactName
-                        val contactNumber = chosenContactNumber
-                        val startTime =
-                            binding.startTimeHourEditText.text.toString() + "." + binding.startTimeMinuteEditText.text.toString()
-                        val endTime =
-                            binding.endTimeHourEditText.text.toString() + "." + binding.endTimeMinuteEditText.text.toString()
-                        val isMonday = binding.checkMonday.isChecked
-                        val isTuesday = binding.checkTuesday.isChecked
-                        val isWednesday = binding.checkWednesday.isChecked
-                        val isThursday = binding.checkThursday.isChecked
-                        val isFriday = binding.checkFriday.isChecked
-                        val isSaturday = binding.checkSaturday.isChecked
-                        val isSunday = binding.checkSunday.isChecked
+                //если числа больше допустимых или начало позже конца
+                if (parseIntValue(binding.startTimeHourEditText.text.toString()) > 23 ||
+                    parseIntValue(binding.endTimeHourEditText.text.toString()) > 23 ||
+                    parseIntValue(binding.startTimeMinuteEditText.text.toString()) > 59 ||
+                    parseIntValue(binding.endTimeMinuteEditText.text.toString()) > 59 ||
+                    parseIntValue(binding.startTimeHourEditText.text.toString()) > parseIntValue(
+                        binding.endTimeHourEditText.text.toString()
+                    )
+                ) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Неверный формат времени",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else if (
+                    !binding.checkSunday.isChecked &&
+                    !binding.checkMonday.isChecked &&
+                    !binding.checkTuesday.isChecked &&
+                    !binding.checkWednesday.isChecked &&
+                    !binding.checkThursday.isChecked &&
+                    !binding.checkFriday.isChecked &&
+                    !binding.checkSaturday.isChecked
+                ) {
+                    Toast.makeText(requireContext(), "Не выбраны дни", Toast.LENGTH_SHORT).show()
+                } else {
+                    val contactName = chosenContactName
+                    val contactNumber = chosenContactNumber
+                    val startTime =
+                        binding.startTimeHourEditText.text.toString() + "." + binding.startTimeMinuteEditText.text.toString()
+                    val endTime =
+                        binding.endTimeHourEditText.text.toString() + "." + binding.endTimeMinuteEditText.text.toString()
+                    val isMonday = binding.checkMonday.isChecked
+                    val isTuesday = binding.checkTuesday.isChecked
+                    val isWednesday = binding.checkWednesday.isChecked
+                    val isThursday = binding.checkThursday.isChecked
+                    val isFriday = binding.checkFriday.isChecked
+                    val isSaturday = binding.checkSaturday.isChecked
+                    val isSunday = binding.checkSunday.isChecked
 
-                        val condition = DisturbCondition(
-                            contactName,
-                            contactNumber,
-                            startTime,
-                            endTime,
-                            isMonday,
-                            isTuesday,
-                            isWednesday,
-                            isThursday,
-                            isFriday,
-                            isSaturday,
-                            isSunday
-                        )
+                    val condition = DisturbCondition(
+                        contactName,
+                        contactNumber,
+                        startTime,
+                        endTime,
+                        isMonday,
+                        isTuesday,
+                        isWednesday,
+                        isThursday,
+                        isFriday,
+                        isSaturday,
+                        isSunday
+                    )
 
-                        val bundle = Bundle()
-                        bundle.putParcelable(NEW_CONDITION, condition)
-                        bundle.putInt(IS_CONDITION_CREATED, 1)
-                        requireActivity().supportFragmentManager.beginTransaction()
-                            .replace(R.id.container, MainFragment.newInstance(bundle))
-                            .commit()
-                    }
+                    val bundle = Bundle()
+                    bundle.putParcelable(NEW_CONDITION, condition)
+                    bundle.putInt(IS_CONDITION_CREATED, 1)
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.container, MainFragment.newInstance(bundle))
+                        .commit()
+                }
 //                } else {
 //                    Toast.makeText(requireContext(), "BITCH", Toast.LENGTH_SHORT)
 //                        .show()
@@ -290,6 +304,7 @@ class ConditionFragment : Fragment() {
                                     chosenContactNumber = phoneNumber
                                     chosenContactName = name
                                     println(chosenContactNumber.toString() + "BEB")
+                                    isContactChosen = true
                                 }
                             }
                         )
