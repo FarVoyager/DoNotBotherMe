@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".view.MainFragment">
+    tools:context=".view.main.MainFragment">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/createBtn"
@@ -16,19 +17,21 @@
         android:layout_marginTop="20dp"
         android:layout_marginLeft="@dimen/general_margin"
         android:layout_marginRight="@dimen/general_margin"
-        android:backgroundTint="#000000"
         />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/clearAllBtn"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/createBtn"
         android:text="@string/clearAllBtnText"
+        android:textColor="#80000000"
+        android:textSize="11sp"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="@dimen/general_margin"
         android:layout_marginRight="@dimen/general_margin"
-        android:backgroundTint="#F44336"
+        android:backgroundTint="?colorOnPrimary"
         />
 
     <TextView
@@ -39,8 +42,16 @@
         android:textSize="24sp"
         android:layout_margin="@dimen/general_margin"
         android:text="@string/CreatedTitle"
-        app:layout_constraintBottom_toTopOf="@id/createdConditionsScrollView"
+        app:layout_constraintBottom_toTopOf="@id/rvMain"
         />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMain"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_margin="@dimen/general_margin"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 
     <androidx.core.widget.NestedScrollView
@@ -48,6 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:layout_margin="@dimen/general_margin"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout

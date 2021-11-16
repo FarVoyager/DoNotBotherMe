@@ -1,5 +1,6 @@
-package com.example.donotbotherme.view
+package com.example.donotbotherme.view.main
 
+import android.app.AlertDialog
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
@@ -10,15 +11,23 @@ import androidx.fragment.app.Fragment
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.donotbotherme.R
 import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.app.App
 import com.example.donotbotherme.databinding.FragmentMainBinding
+import com.example.donotbotherme.model.AppState
 import com.example.donotbotherme.model.DisturbCondition
+import com.example.donotbotherme.view.ConditionFragment
+import com.example.donotbotherme.view.NEW_CONDITION
+import com.example.donotbotherme.viewmodel.MainViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val REQUEST_CODE = 42
 const val CONDITION_LIST = "CONDITION_LIST"
 const val IS_CONDITION_CREATED = "IS_CONDITION_CREATED"
+
+//Rv на 1-ом экране сделан, теперь надо организовать сохранение в БД на 2-ом экране
 
 
 class MainFragment : Fragment() {
@@ -32,6 +41,17 @@ class MainFragment : Fragment() {
     private var objectList: ArrayList<Any> = ArrayList()
     private lateinit var tinyDB: TinyDB
 
+
+    private val model: MainViewModel by viewModel()
+    private var adapter: MainRvAdapter? = null
+    private val onListItemClickListener: MainRvAdapter.OnListItemClickListener =
+        object : MainRvAdapter.OnListItemClickListener {
+            override fun onItemClick(data: DisturbCondition) {
+                Toast.makeText(requireContext(), data.contactNumber, Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,6 +63,8 @@ class MainFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        model.subscribe().observe(viewLifecycleOwner, { renderData(it) })
 
         tinyDB = TinyDB(requireContext())
 
@@ -88,10 +110,16 @@ class MainFragment : Fragment() {
                 for (i in 0 until conditionsList.size) {
                     binding.createdConditionsLayout.addView(AppCompatTextView(requireContext()).apply {
                         registerForContextMenu(this)
-                        this.id = i
+                        this.apply {
+                            gravity = Gravity.CENTER_VERTICAL
+                            height = 100
+                            textSize = 16f
+                            this.id = i
+                        }
                         val textToView = conditionsList[i].contactName + " , " + conditionsList[i].contactNumber + " , " + conditionsList[i].timeStart + "-" + conditionsList[i].timeEnd
                         text = textToView
                     })
+
                 }
         }
 
@@ -104,10 +132,44 @@ class MainFragment : Fragment() {
         }
 
         binding.clearAllBtn.setOnClickListener {
-            conditionsList.clear()
-            objectList.clear()
-            tinyDB.putListObject(CONDITION_LIST, objectList)
-            binding.createdConditionsLayout.removeAllViews()
+            AlertDialog.Builder(requireContext())
+                .setTitle("Вы уверены?")
+                .setMessage("Удалить все условия?")
+                .setNegativeButton("Нет") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setPositiveButton("Да") { _, _, ->
+                    conditionsList.clear()
+                    objectList.clear()
+                    tinyDB.putListObject(CONDITION_LIST, objectList)
+                    binding.createdConditionsLayout.removeAllViews()
+                }
+                .create().show()
+
+        }
+    }
+
+    private fun renderData(appState: AppState) {
+        when (appState) {
+            is AppState.Success -> {
+                val data = appState.data
+                if (data.isNullOrEmpty()) {
+                    Toast.makeText(requireContext(), "data is null or empty", Toast.LENGTH_SHORT).show()
+                } else {
+                    if (adapter == null) {
+                        binding.rvMain.layoutManager = LinearLayoutManager(requireContext())
+                        binding.rvMain.adapter = MainRvAdapter(onListItemClickListener, data)
+                    } else {
+                        adapter?.setData(data)
+                    }
+                }
+            }
+            is AppState.Loading -> {
+                Toast.makeText(requireContext(), "AppState.Loading", Toast.LENGTH_SHORT).show()
+            }
+            is AppState.Error -> {
+                Toast.makeText(requireContext(), "AppState.Error", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

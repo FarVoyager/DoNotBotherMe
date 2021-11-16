@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.ContactsContract
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,13 @@ import androidx.core.content.ContextCompat
 import com.example.donotbotherme.R
 import com.example.donotbotherme.TinyDB
 import com.example.donotbotherme.databinding.FragmentConditionBinding
+import com.example.donotbotherme.interactors.MainInteractor
 import com.example.donotbotherme.model.DisturbCondition
+import com.example.donotbotherme.model.room.RoomRepository
+import com.example.donotbotherme.view.main.CONDITION_LIST
+import com.example.donotbotherme.view.main.IS_CONDITION_CREATED
+import com.example.donotbotherme.view.main.MainFragment
+import com.example.donotbotherme.view.main.REQUEST_CODE
 
 const val NEW_CONDITION = "NEW_CONDITION"
 
@@ -33,7 +40,6 @@ class ConditionFragment : Fragment() {
     private var chosenContactNumber: String? = null
     private var chosenContactName: String? = null
     private var isContactChosen = false
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,11 +56,7 @@ class ConditionFragment : Fragment() {
         //запрос разрешений
         checkPermission(android.Manifest.permission.READ_CONTACTS, TITLE_CONTACTS, MSG_CONTACTS)
         checkPermission(android.Manifest.permission.MODIFY_AUDIO_SETTINGS, TITLE_AUDIO, MSG_AUDIO)
-        checkPermission(
-            android.Manifest.permission.ACCESS_NOTIFICATION_POLICY,
-            TITLE_NOTIFICATION,
-            MSG_NOTIFICATION
-        )
+        checkPermission(android.Manifest.permission.ACCESS_NOTIFICATION_POLICY, TITLE_NOTIFICATION, MSG_NOTIFICATION)
         checkPermission(
             android.Manifest.permission.READ_PHONE_STATE,
             TITLE_PHONE_STATE,
@@ -289,9 +291,12 @@ class ConditionFragment : Fragment() {
                         binding.contactsLayout.addView(
                             AppCompatTextView(it).apply {
                                 id = i
-                                val textToDisplay = "$name $phoneNumber"
+                                val textToDisplay = "$name  $phoneNumber"
                                 setBackgroundColor(resources.getColor(R.color.white))
                                 text = textToDisplay
+                                gravity = Gravity.CENTER_VERTICAL
+                                height = 80
+                                textSize = 14f
 
                                 setOnClickListener {
                                     binding.contactsLayout.let {

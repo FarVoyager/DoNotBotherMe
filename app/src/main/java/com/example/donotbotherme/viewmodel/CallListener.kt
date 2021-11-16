@@ -66,12 +66,12 @@ class CallListener : BroadcastReceiver() {
             if (formattedNumberFirstEight == phoneNumber || formattedNumberFirstSeven == phoneNumber) {
                 positionF = if (i < conditionsList.size - 1) { i + 1 } else { 0 }
                 currentFoundContact = conditionsList[i]
-                Toast.makeText(context, "Number Found BEB", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "Number Found BEB", Toast.LENGTH_SHORT).show()
                 compareTime(context)
             } else if (i < conditionsList.size - 1) {
                 continue
             } else {
-                Toast.makeText(context, "Number NOT Found BEB", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "Number NOT Found BEB", Toast.LENGTH_SHORT).show()
 
                 currentFoundContact = null
                 daysStringBuilder = StringBuilder()
